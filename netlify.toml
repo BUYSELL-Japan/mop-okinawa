@@ -63,6 +63,18 @@
   command = "npm run build"
 
 [[redirects]]
+  from = "/en/spot/*"
+  to = "https://pinssg.netlify.app/en/spot/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/zh/spot/*"
+  to = "https://pinssg.netlify.app/zh/spot/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
