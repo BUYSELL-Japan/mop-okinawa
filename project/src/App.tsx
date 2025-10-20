@@ -25,10 +25,10 @@ const LOGIN_URL = "https://ap-southeast-2usngbi9wi.auth.ap-southeast-2.amazoncog
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [hasSeenWelcome, setHasSeenWelcome] = useLocalStorage('hasSeenWelcome', false);
-  const { t, language } = useLanguage();
+  const { t, language, changeLanguage } = useLanguage();
   const env = validateEnv();
   const [geojsonUrl] = useLocalStorage('geojsonUrl', env.VITE_GEOJSON_URL);
-  const [selectedCategories, setSelectedCategories] = useLocalStorage('selectedCategories', ['1', '4', '9']);
+  const [selectedCategories, setSelectedCategories] = useLocalStorage('selectedCategories', ['1', '9']);
   const [showMarkerTitles, setShowMarkerTitles] = useLocalStorage('showMarkerTitles', true);
   const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -63,6 +63,27 @@ function App() {
     }
     return [];
   };
+
+  // Handle URL query parameters for pin_id and language
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pinId = urlParams.get('pin_id');
+    const langParam = urlParams.get('lang');
+
+    // Handle language parameter
+    if (langParam) {
+      if (langParam === 'en') {
+        changeLanguage('en');
+      } else if (langParam === 'zh') {
+        changeLanguage('zh-TW');
+      }
+    }
+
+    // Store pin_id for later use after locations are loaded
+    if (pinId) {
+      sessionStorage.setItem('pending_pin_id', pinId);
+    }
+  }, [changeLanguage]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -112,6 +133,32 @@ function App() {
       refreshFavorites();
     }
   }, [isAuthenticated, locations]);
+
+  // Handle pin_id navigation after locations are loaded
+  useEffect(() => {
+    const pendingPinId = sessionStorage.getItem('pending_pin_id');
+    if (pendingPinId && locations.length > 0) {
+      const targetLocation = locations.find(
+        loc => loc.properties.pin_id === pendingPinId
+      );
+
+      if (targetLocation) {
+        // Auto-select the category if needed
+        const categoryId = targetLocation.properties.category_id;
+        if (!selectedCategories.includes(categoryId)) {
+          handleCategoryAutoSelect(categoryId);
+        }
+
+        // Navigate to the location
+        setTimeout(() => {
+          handleLocationSelect(targetLocation);
+        }, 500);
+
+        // Clear the pending pin_id
+        sessionStorage.removeItem('pending_pin_id');
+      }
+    }
+  }, [locations, selectedCategories]);
 
   const handleCategoryToggle = (categoryId: string) => {
     setSelectedCategories(prev => {

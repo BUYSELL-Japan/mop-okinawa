@@ -151,15 +151,34 @@ export const translations: Translations = {
   'settings.termsOfUse': {
     en: 'Terms of Use',
     'zh-TW': '服務條款'
+  },
+
+  // Welcome Modal
+  'welcome.title': {
+    en: 'Make Your Okinawa Trip More Free',
+    'zh-TW': '讓沖繩之旅更自由'
+  },
+  'welcome.description': {
+    en: 'MOP is a guide map application that supports tourism in Okinawa. You can easily find information on sightseeing spots, hotels, and activities, and make reservations or purchases on the spot. MOP will provide comprehensive assistance for your trip to Okinawa.',
+    'zh-TW': 'MOP是一款支援沖繩觀光的導覽地圖應用程式。您可以輕鬆地找到觀光景點、飯店和活動的資訊，並當場進行預約或購買。MOP將為您的沖繩之旅提供全面的協助。'
   }
 };
 
+// Detect browser language
+const detectBrowserLanguage = (): Language => {
+  const browserLang = navigator.language || navigator.languages?.[0];
+  if (browserLang?.startsWith('zh')) {
+    return 'zh-TW';
+  }
+  return 'en';
+};
+
 // Create a global state for language changes
-let globalLanguageState: Language = 'zh-TW';
+let globalLanguageState: Language = detectBrowserLanguage();
 const languageListeners: Set<() => void> = new Set();
 
 export function useLanguage() {
-  const [storedLanguage, setStoredLanguage] = useLocalStorage<Language>('language', 'zh-TW');
+  const [storedLanguage, setStoredLanguage] = useLocalStorage<Language>('language', detectBrowserLanguage());
   const [currentLanguage, setCurrentLanguage] = useState<Language>(storedLanguage);
 
   // Initialize global state
