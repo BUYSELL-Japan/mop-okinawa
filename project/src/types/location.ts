@@ -20,6 +20,7 @@ export interface Location {
     category: string;
     category_id?: string;
     pin_id?: string;
+    item_id?: string;
     affiliate_link?: string;
     affiliate_link_tw?: string;
     original_data?: {

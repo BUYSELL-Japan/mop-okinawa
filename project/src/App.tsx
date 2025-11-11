@@ -139,7 +139,7 @@ function App() {
     const pendingPinId = sessionStorage.getItem('pending_pin_id');
     if (pendingPinId && locations.length > 0) {
       const targetLocation = locations.find(
-        loc => loc.properties.pin_id === pendingPinId
+        loc => loc.properties.pin_id === pendingPinId || loc.properties.item_id === pendingPinId
       );
 
       if (targetLocation) {
