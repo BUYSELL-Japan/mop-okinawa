@@ -139,7 +139,7 @@ function App() {
     const pendingPinId = sessionStorage.getItem('pending_pin_id');
     if (pendingPinId && locations.length > 0) {
       const targetLocation = locations.find(
-        loc => loc.properties.pin_id === pendingPinId
+        loc => loc.properties.pin_id === pendingPinId || loc.properties.item_id === pendingPinId
       );
 
       if (targetLocation) {
@@ -348,7 +348,7 @@ function App() {
 
               <div className={`${isMobile ? 'snap-center' : ''}`}>
                 <a
-                  href={language === 'zh-TW' ? 'https://guide-book.mop-okinawa.com/zh-tw' : 'https://guide-book.mop-okinawa.com/en'}
+                  href={language === 'zh-TW' ? 'https://mop-okinawa.com/zh/guidebook/' : 'https://mop-okinawa.com/en/guidebook/'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-white/30 hover:bg-white/95 transition-colors whitespace-nowrap text-sm min-h-[36px]"

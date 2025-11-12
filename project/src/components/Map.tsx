@@ -406,6 +406,11 @@ const Map = forwardRef<MapRef, MapProps>(({
       ? (location.properties.affiliate_link_tw || location.properties.affiliate_link)
       : location.properties.affiliate_link;
 
+    // Get guidebook URL based on language
+    const guidebookUrl = language === 'zh-TW'
+      ? location.properties.guidebook_url_tw
+      : location.properties.guidebook_url_en;
+
     const cleanDescription = getCleanDescription(description);
     const lat = location.geometry.coordinates[1];
     const lng = location.geometry.coordinates[0];
@@ -460,7 +465,7 @@ const Map = forwardRef<MapRef, MapProps>(({
         <div class="${isMobile ? 'text-xs' : 'text-sm'} text-gray-600 mb-3 max-h-[200px] overflow-y-auto">
           ${cleanDescription}
         </div>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid ${guidebookUrl ? 'grid-cols-3' : 'grid-cols-2'} gap-2">
           ${url ? `
             <button
               class="w-full px-3 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} font-medium affiliate-link-button"
@@ -472,6 +477,18 @@ const Map = forwardRef<MapRef, MapProps>(({
               ${getButtonText(categoryId)}
             </button>
           ` : '<div></div>'}
+          ${guidebookUrl ? `
+            <a
+              href="${escapeHtml(guidebookUrl)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="block"
+            >
+              <button class="w-full px-3 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} font-medium">
+                ${t('action.guidebookButton')}
+              </button>
+            </a>
+          ` : ''}
           <a
             href="${directionsUrl}"
             target="_blank"

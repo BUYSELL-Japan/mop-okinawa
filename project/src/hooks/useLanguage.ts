@@ -106,6 +106,10 @@ export const translations: Translations = {
     en: 'Guide Book',
     'zh-TW': '旅遊指南'
   },
+  'action.guidebookButton': {
+    en: 'Guidebook',
+    'zh-TW': '旅遊指南'
+  },
   
   // Messages
   'message.loadingData': {
