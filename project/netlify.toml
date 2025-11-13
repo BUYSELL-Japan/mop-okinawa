@@ -88,6 +88,26 @@
   force = true
 
 [[redirects]]
+  from = "/en"
+  to = "/?lang=en"
+  status = 301
+
+[[redirects]]
+  from = "/en/"
+  to = "/?lang=en"
+  status = 301
+
+[[redirects]]
+  from = "/zh"
+  to = "/?lang=zh"
+  status = 301
+
+[[redirects]]
+  from = "/zh/"
+  to = "/?lang=zh"
+  status = 301
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

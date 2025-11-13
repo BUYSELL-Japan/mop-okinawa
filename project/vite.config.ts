@@ -13,61 +13,7 @@ export default defineConfig({
         'apple-touch-icon.png',
         'mask-icon.svg'
       ],
-      manifest: {
-        name: 'MOP-Okinawa',
-        short_name: 'MOP-Okinawa',
-        description: 'Plan your perfect Okinawa trip like a local. Discover hidden gems, authentic experiences, and top spots with MOP – your ultimate travel companion.',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
-        display: 'standalone',
-        start_url: './?source=pwa',
-        id: './?version=1.0.1',
-        orientation: 'portrait',
-        categories: ['travel', 'navigation', 'maps'],
-        lang: 'ja',
-        dir: 'ltr',
-        prefer_related_applications: false,
-        shortcuts: [
-          {
-            name: '観光スポット',
-            url: './?category=1',
-            icons: [{ src: 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWAアイコン/mop192beta.png', sizes: '192x192' }]
-          },
-          {
-            name: 'アクティビティ',
-            url: './?category=2',
-            icons: [{ src: 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWAアイコン/mop192beta.png', sizes: '192x192' }]
-          }
-        ],
-        screenshots: [
-          {
-            src: 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWAアイコン/scrshot.png',
-            sizes: '640x1136',
-            type: 'image/png',
-            form_factor: 'narrow',
-            label: 'MOP-Okinawa'
-          }
-        ],
-        icons: [
-          {
-            src: 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWAアイコン/mop192beta.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWAアイコン/mop512beta.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWAアイコン/mop512beta.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable'
-          }
-        ]
-      },
+      manifest: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
         skipWaiting: true,
