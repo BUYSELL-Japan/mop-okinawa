@@ -45,78 +45,61 @@ window.addEventListener('beforeinstallprompt', (e) => {
   });
 });
 
-// Clean up old service workers completely
-async function cleanupOldServiceWorkers() {
-  if ('serviceWorker' in navigator) {
-    try {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const registration of registrations) {
-        console.log('Unregistering old service worker...');
-        await registration.unregister();
-      }
+// Register service worker with auto-update and forced reload
+if ('serviceWorker' in navigator) {
+  try {
+    const updateSW = registerSW({
+      immediate: true,
+      onNeedRefresh() {
+        console.log('New content available, updating...');
+        // Immediately update and reload
+        updateSW(true).then(() => {
+          console.log('Update applied, reloading page...');
+          window.location.reload();
+        });
+      },
+      onOfflineReady() {
+        console.log('アプリケーションがオフラインで利用可能になりました');
+      },
+      onRegistered(swUrl, r) {
+        console.log('Service Worker registered:', swUrl);
 
-      // Clear all caches
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        await Promise.all(
-          cacheNames.map(cacheName => {
-            console.log('Deleting cache:', cacheName);
-            return caches.delete(cacheName);
-          })
-        );
+        // Aggressive update checking
+        if (r) {
+          // Check immediately
+          r.update().catch(err => console.error('Initial update check failed:', err));
+
+          // Then check every 30 seconds
+          setInterval(async () => {
+            try {
+              await r.update();
+              console.log('Service Worker update check completed');
+            } catch (err) {
+              console.error('Service Worker update failed:', err);
+            }
+          }, 30 * 1000); // 30秒ごと
+        }
+      },
+      onRegisterError(error) {
+        console.error('Service Worker registration failed:', error);
       }
-    } catch (error) {
-      console.error('Failed to cleanup old service workers:', error);
-    }
+    });
+  } catch (error) {
+    console.error('Failed to register service worker:', error);
   }
 }
 
-// Register service worker with auto-update and forced reload
-if ('serviceWorker' in navigator) {
-  // First cleanup old service workers
-  cleanupOldServiceWorkers().then(() => {
-    try {
-      const updateSW = registerSW({
-        immediate: true,
-        onNeedRefresh() {
-          console.log('New content available, updating...');
-          // Immediately update and reload
-          updateSW(true).then(() => {
-            console.log('Update applied, reloading page...');
-            window.location.reload();
-          });
-        },
-        onOfflineReady() {
-          console.log('アプリケーションがオフラインで利用可能になりました');
-        },
-        onRegistered(swUrl, r) {
-          console.log('Service Worker registered:', swUrl);
+// Global error handlers for debugging
+window.addEventListener('error', (event) => {
+  console.error('Global error:', event.error);
+  console.error('Error message:', event.message);
+  console.error('Error source:', event.filename);
+  console.error('Error line:', event.lineno);
+});
 
-          // Aggressive update checking
-          if (r) {
-            // Check immediately
-            r.update().catch(err => console.error('Initial update check failed:', err));
-
-            // Then check every 30 seconds
-            setInterval(async () => {
-              try {
-                await r.update();
-                console.log('Service Worker update check completed');
-              } catch (err) {
-                console.error('Service Worker update failed:', err);
-              }
-            }, 30 * 1000); // 30秒ごと
-          }
-        },
-        onRegisterError(error) {
-          console.error('Service Worker registration failed:', error);
-        }
-      });
-    } catch (error) {
-      console.error('Failed to register service worker:', error);
-    }
-  });
-}
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason);
+});
 
 // Render app with error boundary
 const rootElement = document.getElementById('root');
@@ -129,8 +112,23 @@ if (rootElement) {
     );
   } catch (error) {
     console.error('Failed to render app:', error);
-    rootElement.innerHTML = '<div style="padding: 20px; text-align: center;">アプリケーションの読み込みに失敗しました。ページを再読み込みしてください。</div>';
+    rootElement.innerHTML = `
+      <div style="padding: 20px; text-align: center; font-family: sans-serif;">
+        <h2 style="color: #e53e3e;">アプリケーションの読み込みに失敗しました</h2>
+        <p style="color: #4a5568; margin: 10px 0;">ページを再読み込みしてください。</p>
+        <p style="color: #718096; font-size: 12px;">Error: ${error instanceof Error ? error.message : String(error)}</p>
+        <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #3182ce; color: white; border: none; border-radius: 5px; cursor: pointer;">
+          再読み込み
+        </button>
+      </div>
+    `;
   }
 } else {
   console.error('Root element not found');
+  document.body.innerHTML = `
+    <div style="padding: 20px; text-align: center; font-family: sans-serif;">
+      <h2 style="color: #e53e3e;">初期化エラー</h2>
+      <p style="color: #4a5568;">アプリケーションのルート要素が見つかりません。</p>
+    </div>
+  `;
 }
