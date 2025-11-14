@@ -80,5 +80,45 @@
     Content-Type = "image/svg+xml; charset=UTF-8"
 
 [build]
+  base = "project"
   publish = "dist"
   command = "npm run build"
+
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "https://pinssg.netlify.app/sitemap.xml"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/robots.txt"
+  to = "https://pinssg.netlify.app/robots.txt"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/en/spot/*"
+  to = "https://pinssg.netlify.app/en/spot/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/zh/spot/*"
+  to = "https://pinssg.netlify.app/zh/spot/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/en/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/zh/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

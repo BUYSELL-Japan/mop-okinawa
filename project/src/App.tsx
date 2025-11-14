@@ -64,26 +64,16 @@ function App() {
     return [];
   };
 
-  // Handle URL query parameters for pin_id and language
+  // Handle URL query parameters for pin_id only
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const pinId = urlParams.get('pin_id');
-    const langParam = urlParams.get('lang');
-
-    // Handle language parameter
-    if (langParam) {
-      if (langParam === 'en') {
-        changeLanguage('en');
-      } else if (langParam === 'zh') {
-        changeLanguage('zh-TW');
-      }
-    }
 
     // Store pin_id for later use after locations are loaded
     if (pinId) {
       sessionStorage.setItem('pending_pin_id', pinId);
     }
-  }, [changeLanguage]);
+  }, []);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
