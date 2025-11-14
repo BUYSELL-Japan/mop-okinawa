@@ -1,0 +1,21 @@
+# Static assets should never redirect
+/assets/*  /assets/:splat  200
+/sw.js  /sw.js  200
+/workbox-*.js  /workbox-:splat.js  200
+/*.js  /:splat.js  200
+/*.css  /:splat.css  200
+/*.png  /:splat.png  200
+/*.svg  /:splat.svg  200
+/*.ico  /:splat.ico  200
+/*.json  /:splat.json  200
+
+# External proxies
+/sitemap.xml  https://pinssg.netlify.app/sitemap.xml  200
+/robots.txt  https://pinssg.netlify.app/robots.txt  200
+/en/spot/*  https://pinssg.netlify.app/en/spot/:splat  200
+/zh/spot/*  https://pinssg.netlify.app/zh/spot/:splat  200
+
+# SPA fallback for all other routes
+/en  /index.html  200
+/zh  /index.html  200
+/*  /index.html  200
