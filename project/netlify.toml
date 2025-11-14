@@ -80,7 +80,6 @@
     Content-Type = "image/svg+xml; charset=UTF-8"
 
 [build]
-  base = "project"
   publish = "dist"
   command = "npm run build"
 
