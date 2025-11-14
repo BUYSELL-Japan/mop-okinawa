@@ -2,11 +2,14 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// Generate unique version for cache busting
+const BUILD_VERSION = Date.now().toString();
+
 export default defineConfig({
   base: './',
   plugins: [
     react(),
-    VitePWA({
+VitePWA({
       registerType: 'autoUpdate',
       includeAssets: [
         'favicon.ico',
@@ -19,12 +22,16 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api\//, /^\/en\/spot\//, /^\/zh\/spot\//],
+        // Add version to cache names to force cache refresh on new deploys
+        cacheId: `mop-okinawa-v${BUILD_VERSION}`,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/s3geojsonnew\.s3\.ap-southeast-2\.amazonaws\.com\/.*/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'geojson-cache',
+              cacheName: `geojson-cache-v${BUILD_VERSION}`,
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 5 // 5 minutes
@@ -36,7 +43,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/.*\.openstreetmap\.org\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'map-tiles-cache',
+              cacheName: `map-tiles-cache-v${BUILD_VERSION}`,
               expiration: {
                 maxEntries: 1000,
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days

@@ -1,4 +1,25 @@
 [[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+[[headers]]
+  for = "/workbox-*.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+[[headers]]
   for = "/*"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
@@ -88,24 +109,14 @@
   force = true
 
 [[redirects]]
-  from = "/en"
-  to = "/?lang=en"
-  status = 301
+  from = "/en/*"
+  to = "/index.html"
+  status = 200
 
 [[redirects]]
-  from = "/en/"
-  to = "/?lang=en"
-  status = 301
-
-[[redirects]]
-  from = "/zh"
-  to = "/?lang=zh"
-  status = 301
-
-[[redirects]]
-  from = "/zh/"
-  to = "/?lang=zh"
-  status = 301
+  from = "/zh/*"
+  to = "/index.html"
+  status = 200
 
 [[redirects]]
   from = "/*"

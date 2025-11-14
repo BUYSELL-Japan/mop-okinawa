@@ -45,41 +45,92 @@ window.addEventListener('beforeinstallprompt', (e) => {
   });
 });
 
-// Register service worker with auto-update
-const updateSW = registerSW({
-  immediate: true,
-  onNeedRefresh() {
-    // 自動的に更新を適用
-    updateSW(true);
-  },
-  onOfflineReady() {
-    console.log('アプリケーションがオフラインで利用可能になりました');
-    // オフライン準備完了時の通知
-    const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-[9999]';
-    notification.textContent = 'オフラインでも使用できるようになりました';
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
-  },
-  onRegistered(swUrl, r) {
-    console.log('Service Worker registered:', swUrl);
-    
-    // より頻繁な更新チェック
-    setInterval(async () => {
-      if (r) {
-        try {
-          await r.update();
-          console.log('Service Worker update check completed');
-        } catch (err) {
-          console.error('Service Worker update failed:', err);
-        }
+// Clean up old service workers completely
+async function cleanupOldServiceWorkers() {
+  if ('serviceWorker' in navigator) {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        console.log('Unregistering old service worker...');
+        await registration.unregister();
       }
-    }, 30 * 1000); // 30秒ごと
-  }
-});
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+      // Clear all caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(
+          cacheNames.map(cacheName => {
+            console.log('Deleting cache:', cacheName);
+            return caches.delete(cacheName);
+          })
+        );
+      }
+    } catch (error) {
+      console.error('Failed to cleanup old service workers:', error);
+    }
+  }
+}
+
+// Register service worker with auto-update and forced reload
+if ('serviceWorker' in navigator) {
+  // First cleanup old service workers
+  cleanupOldServiceWorkers().then(() => {
+    try {
+      const updateSW = registerSW({
+        immediate: true,
+        onNeedRefresh() {
+          console.log('New content available, updating...');
+          // Immediately update and reload
+          updateSW(true).then(() => {
+            console.log('Update applied, reloading page...');
+            window.location.reload();
+          });
+        },
+        onOfflineReady() {
+          console.log('アプリケーションがオフラインで利用可能になりました');
+        },
+        onRegistered(swUrl, r) {
+          console.log('Service Worker registered:', swUrl);
+
+          // Aggressive update checking
+          if (r) {
+            // Check immediately
+            r.update().catch(err => console.error('Initial update check failed:', err));
+
+            // Then check every 30 seconds
+            setInterval(async () => {
+              try {
+                await r.update();
+                console.log('Service Worker update check completed');
+              } catch (err) {
+                console.error('Service Worker update failed:', err);
+              }
+            }, 30 * 1000); // 30秒ごと
+          }
+        },
+        onRegisterError(error) {
+          console.error('Service Worker registration failed:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to register service worker:', error);
+    }
+  });
+}
+
+// Render app with error boundary
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  try {
+    createRoot(rootElement).render(
+      <StrictMode>
+        <App />
+      </StrictMode>
+    );
+  } catch (error) {
+    console.error('Failed to render app:', error);
+    rootElement.innerHTML = '<div style="padding: 20px; text-align: center;">アプリケーションの読み込みに失敗しました。ページを再読み込みしてください。</div>';
+  }
+} else {
+  console.error('Root element not found');
+}
