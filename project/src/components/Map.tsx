@@ -9,7 +9,7 @@ import { AlertTriangle, Crosshair, MapPin } from 'lucide-react';
 import { createGeoJsonUrl } from '../utils/envValidation';
 import { addToFavorites, deleteFavorite, getFavorites } from '../utils/auth';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { sendPinClickEvent, sendAffiliateLinkClickEvent } from '../utils/gtm';
+import { sendPinClickEvent, sendAffiliateLinkClickEvent, sendExternalLinkClickEvent, getCurrentLanguage } from '../utils/gtm';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-rotatedmarker';
 
@@ -507,8 +507,7 @@ const Map = forwardRef<MapRef, MapProps>(({
   useEffect(() => {
     const handleClick = async (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      
-      // Handle affiliate link button clicks
+
       const affiliateLinkButton = target.closest('.affiliate-link-button');
       if (affiliateLinkButton) {
         e.preventDefault();
@@ -518,7 +517,6 @@ const Map = forwardRef<MapRef, MapProps>(({
         const linkType = affiliateLinkButton.getAttribute('data-link-type');
 
         if (linkUrl && locationName && pinTitle && linkType) {
-          // Unescape HTML entities from the attributes
           const decodedUrl = unescapeHtml(linkUrl);
           const decodedLocationName = unescapeHtml(locationName);
           const decodedPinTitle = unescapeHtml(pinTitle);
@@ -532,19 +530,29 @@ const Map = forwardRef<MapRef, MapProps>(({
           });
           sendAffiliateLinkClickEvent(decodedUrl, decodedLocationName, decodedPinTitle, decodedLinkType);
 
-          // Open the link after sending the event
           setTimeout(() => {
             window.open(decodedUrl, '_blank', 'noopener,noreferrer');
           }, 100);
         }
       }
-      
-      // Handle favorite button clicks
+
       const favoriteButton = target.closest('.favorite-button');
       if (favoriteButton) {
         const pinId = favoriteButton.getAttribute('data-pin-id');
         if (pinId) {
           await handleFavoriteClick(pinId);
+        }
+      }
+
+      const link = target.closest('a');
+      if (link && link.href) {
+        const href = link.getAttribute('href') || '';
+        const linkText = link.textContent || '';
+
+        if (href.includes('google.com/maps/dir')) {
+          sendExternalLinkClickEvent(href, 'Get Directions', getCurrentLanguage());
+        } else if (href.includes('guidebook')) {
+          sendExternalLinkClickEvent(href, linkText, getCurrentLanguage());
         }
       }
     };

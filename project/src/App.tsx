@@ -16,6 +16,8 @@ import { Book } from 'lucide-react';
 import { useLanguage } from './hooks/useLanguage';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useWindowSize } from './hooks/useWindowSize';
+import { useAnalytics } from './hooks/useAnalytics';
+import { useViewportTracking } from './hooks/useViewportTracking';
 import { Location } from './types/location';
 import { validateEnv } from './utils/envValidation';
 import { exchangeCodeForTokens, parseJwt, getFavorites, checkAndRefreshTokens } from './utils/auth';
@@ -27,6 +29,9 @@ function App() {
   const [hasSeenWelcome, setHasSeenWelcome] = useLocalStorage('hasSeenWelcome', false);
   const { t, language, changeLanguage } = useLanguage();
   const env = validateEnv();
+
+  const { trackSpotView } = useAnalytics();
+  useViewportTracking(true);
   const [geojsonUrl] = useLocalStorage('geojsonUrl', env.VITE_GEOJSON_URL);
   const [selectedCategories, setSelectedCategories] = useLocalStorage('selectedCategories', ['1', '9']);
   const [showMarkerTitles, setShowMarkerTitles] = useLocalStorage('showMarkerTitles', true);
@@ -161,19 +166,13 @@ function App() {
 
   const handleLocationSelect = (location: Location) => {
     console.log('Location selected programmatically:', location.properties.title);
-    // GTMイベントを送信（プログラム的な選択時）
-    if (typeof window !== 'undefined') {
-      import('./utils/gtm').then(({ sendPinClickEvent }) => {
-        sendPinClickEvent(location.properties.title);
-      });
-    }
 
-    // Check if the location's category is currently selected
+    trackSpotView(location.properties.title);
+
     const categoryId = location.properties.category_id;
     const isCategorySelected = selectedCategories.includes(categoryId);
 
     if (!isCategorySelected) {
-      // Category needs to be auto-selected, so delay the popup
       setPendingLocationOpen(location);
     }
 
@@ -187,7 +186,6 @@ function App() {
         }
       );
 
-      // Only open popup immediately if category is already selected
       if (isCategorySelected) {
         setTimeout(() => {
           map.openPopup(

@@ -3,7 +3,7 @@ import { X, Search } from 'lucide-react';
 import { Location } from '../types/location';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { useLanguage } from '../hooks/useLanguage';
-import { sendPinClickEvent } from '../utils/gtm';
+import { sendPinClickEvent, sendSearchResultEvent } from '../utils/gtm';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -86,7 +86,7 @@ export default function SearchModal({ isOpen, onClose, locations, onLocationSele
   useEffect(() => {
     if (searchTerm.length >= 1) {
       const searchTerms = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
-      
+
       const results: SearchResult[] = locations
         .map(location => ({
           ...location,
@@ -97,10 +97,12 @@ export default function SearchModal({ isOpen, onClose, locations, onLocationSele
         .slice(0, 10);
 
       setSuggestions(results);
+
+      sendSearchResultEvent(searchTerm, results.length, language);
     } else {
       setSuggestions([]);
     }
-  }, [searchTerm, locations]);
+  }, [searchTerm, locations, language]);
 
   const handleLocationClick = (location: Location) => {
     console.log('Search result clicked:', location.properties.title);
